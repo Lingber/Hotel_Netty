@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+	
+	<title>秒表</title>	
+	<script type="text/javascript" src="./static/js/jquery-3.0.0.min.js"></script>
+	<!-- <link href="./static/home/bootstrap.min.css" rel="stylesheet"> -->
+	<link href="./static/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="./static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="./static/time/css/main.css">
+</head>
+<body class="body">
+	<div  class="main_container">
+		<!-- <div>text</div> -->
+		<div class="box">
+			<div class="circle">
+				<div class="semileft"></div>
+				<div class="semiright"></div>
+				<div class="maskleft"></div>
+				<div class="maskright"></div>
+		   </div>
+			<div class="time"><span id="minute">00</span>:<span id="second">00</span>.<span id="ms">0</span></div>
+		</div>
+		<div class="all_record">
+			<div class="record">
+				<div class="Nth"><span>温度：</span></div>
+				<!-- <div class="time"><span>23</span>.<span>3</span> <span>℃</span></div> -->
+				<div class="time" id="temperature"></div>
+				<div class="deltime"><span>20℃~28℃</span></div>
+			</div>
+			<div class="record">
+				<div class="Nth"><span>湿度：</span></div>
+				<div class="time" id="humidity"></div>
+				<div class="deltime"><span>45%~65%</span></div>
+			</div>
+			<div class="record">
+				<div class="Nth"> <span> CO浓度：</span></div>
+				<div class="time" id="co_concentration"></div>
+				<div class="deltime"><span>《   50(ppm)</span></div>
+			</div>
+			<div class="record">
+				<div class="Nth"> <span> 烟雾浓度：</span></div>
+				<div class="time" id="fog_concentration"></div>
+				<div class="deltime"><span>《   50(烟雾)</span></div>
+			</div>
+			<div class="record">
+				<div class="Nth"> <span> 翻身次数：</span></div>
+				<div class="time" id="action_count"></div>
+				<div class="deltime"><span>《   30</span></div>
+			</div>
+		</div>
+		<div class="control">
+			<!-- <div class="oneBtn_one" style="display: block;">
+				<button class="start" id="start">开启舱门</button>
+			</div> -->
+			<div class="oneBtn_two">
+				<button class="stop" id="stop">结束使用</button>
+			</div>
+		</div>
+	</div>
+<!--  关门提示模拟框-->
+<div class="modal fade" tabindex="-1" role="dialog" id="payModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" style="color:#000000 ">关舱完成，请支付：</h4>
+      </div>
+      <div class="modal-body" style=" 	display: flex; flex-direction: row;align-items: center; justify-content: space-between;margin:auto 34%;">
+        <h2 style="color:#000000 " align="center">15</h2><span style="color:#5B5B5B; margin-top: 23%;"> /元</span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="pay_btn">确认支付</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!--  关门提示模拟框-->
+<script type="text/javascript">
+
+$(function(){
+	setInterval(flash_page,1000);
+	function flash_page(){
+	    //发送Ajax请求
+	    $.ajax({
+	        url:"/Hotel_Server/datashow/count",
+	        type:"POST",
+	        data: "",
+	        success:function (result) {
+	        	$("#temperature").html("<span>"+result.temperature+"</span>");
+	        	$("#humidity").html("<span>"+result.humidity+"</span>");
+	        	$("#co_concentration").html("<span>"+result.co_concentration+"</span>");
+	        	$("#fog_concentration").html("<span>"+result.fog_concentration+"</span>");
+	        	$("#action_count").html("<span>"+result.action_count+"</span>");
+	    }
+	});
+   }
+});
+
+
+//结束
+$("#stop").click(function () {
+      $("#payModal").modal({
+          backdrop:"static"
+      });
+});
+
+
+
+//支付完成，跳转页面，关门
+$("#pay_btn").click(function () {
+	var code00 ="00";
+	var code03 ="03";
+	var code02 ="02";
+	var data = "close";
+    //发送Ajax请求
+    $.ajax({
+        url:"/Hotel_Server/netty/sendMsg",
+        type:"POST",
+        data: "function="+data,
+        success:function (result) {
+            if(result.msg_code == code02){
+            	alert("关闭成功");
+            	self.location='wangning4.jsp'; 
+            }else {
+            	if(result.msg_code == code03){
+            		$("#payModal").modal("hide");
+                	alert("退出失败！请重新关门");
+            	}else{
+            		alert("设备不可用！");
+            		self.location='userLogin.jsp'; 
+            	     }
+            	}
+            }
+        });
+});
+</script> 
+<!-- <script type="text/javascript" src="./static/js/Home.js"></script> -->
+<script type="text/javascript" src="./static/time/build/bundle.js"></script>
+<script type="text/javascript" src="./static/time/app/stopWatch.js"></script>
+</body>
+</html>

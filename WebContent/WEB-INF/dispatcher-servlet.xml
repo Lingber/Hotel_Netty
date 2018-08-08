@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+    
+    <!-- 扫描包，如果用扫描则不用再写 <context:annotation-config /> -->
+<!--     <context:component-scan base-package="com.lingber.controller" />
+    <context:component-scan base-package="com.lingber.dao" />
+    <context:component-scan base-package="com.lingber.service" /> -->
+        <context:component-scan base-package="com.lingber.*" />
+
+   <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+      <property name="prefix" value="/" />
+      <property name="suffix" value=".jsp" />
+   </bean>
+   
+     <mvc:default-servlet-handler/>
+    <!-- 本工程拦截器 -->
+    <mvc:interceptors>
+        <bean class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+            <property name="cacheSeconds" value="0" />
+            <property name="useExpiresHeader" value="true" />
+            <property name="useCacheControlHeader" value="true" />
+            <property name="useCacheControlNoStore" value="true" />
+            <property name="alwaysUseFullPath" value="true" />
+        </bean>
+    </mvc:interceptors> 
+
+    <!-- 加入以下配置支持@ResponseBody返回Json格式 -->
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean
+                class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>text/plain;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+ 	<import resource="classpath:mongo/mongodb-context.xml"/>
+ 	<!-- 支持文件上传的Bean -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	     <property name="maxUploadSize" value="104857600" />
+	     <property name="maxInMemorySize" value="4096" />
+	     <property name="defaultEncoding" value="UTF-8"></property>
+	</bean>  
+	
+</beans>
